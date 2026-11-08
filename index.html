@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGTouch | Placas Inteligentes NFC + QR | Puerto Varas, Chile</title>
+    <!-- Tailwind CSS via CDN: altere as classes Tailwind no HTML para ajustar o layout e os estilos. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome: troque as classes fa-* nos elementos para mudar os ícones. -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fonte principal da página; para trocar, atualize esta URL e a família definida no CSS abaixo. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tema Tailwind: cores e tipografia globais são configuradas aqui. Altere os valores brand para mudar a identidade visual. -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            900: '#4c1d95',
+                        },
+                        darkBg: '#020617',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Estilos personalizados fora do Tailwind; use este bloco para efeitos próprios reutilizados pela página. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Mantém os títulos organizados em Title Case sem alterar os textos descritivos. */
+        h1, h2, h3, h4 { text-transform: capitalize; }
+        /* Fundo abstrato discreto: gradientes suaves sem grade ou imagem carregada no hero. */
+        #home {
+            background-color: #020617;
+            background-image:
+                radial-gradient(ellipse at 82% 18%, rgba(124, 58, 237, 0.16), transparent 34%),
+                radial-gradient(ellipse at 10% 82%, rgba(79, 70, 229, 0.12), transparent 32%);
+        }
+        #site-header {
+            transition: background-color 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+        }
+        #site-header.is-scrolled {
+            background: rgba(2, 6, 23, 0.88);
+            border-color: rgba(148, 163, 184, 0.16);
+            box-shadow: 0 12px 30px rgba(2, 6, 23, 0.28);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+        .brand-mark-crop {
+            position: relative;
+            width: 3.75rem;
+            height: 3.75rem;
+            overflow: hidden;
+            flex: none;
+        }
+        .brand-mark-crop img {
+            position: absolute;
+            width: 265px;
+            max-width: none;
+            left: -106px;
+            top: -105px;
+        }
+        /* Recorte ampliado apenas do símbolo: as informações da arte aparecem como texto HTML no hero. */
+        .hero-mark-crop {
+            position: relative;
+            width: 6rem;
+            height: 6rem;
+            overflow: hidden;
+            flex: none;
+        }
+        .hero-mark-crop img {
+            position: absolute;
+            width: 438px;
+            max-width: none;
+            left: -175px;
+            top: -174px;
+        }
+        /* Painel lateral e camada escura do menu móvel. */
+        #mobile-menu {
+            visibility: hidden;
+            transform: translateX(100%);
+            transition: transform 240ms ease, visibility 240ms ease;
+            will-change: transform;
+        }
+        #mobile-menu.is-open {
+            visibility: visible;
+            transform: translateX(0);
+        }
+        #mobile-menu-backdrop {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 240ms ease, visibility 240ms ease;
+        }
+        #mobile-menu-backdrop.is-open {
+            visibility: visible;
+            opacity: 1;
+        }
+        body.menu-open {
+            overflow: hidden;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #mobile-menu,
+            #mobile-menu-backdrop {
+                transition-duration: 0.01ms;
+            }
+        }
+        @media (max-width: 420px) {
+            .brand-mark-crop {
+                width: 3.25rem;
+                height: 3.25rem;
+            }
+            .brand-mark-crop img {
+                width: 230px;
+                left: -92px;
+                top: -91px;
+            }
+        }
+        /* Efeito de acrílico do mockup; permanece claro para simular a placa real. */
+        .acrylic-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased selection:bg-violet-500 selection:text-white flex flex-col min-h-screen">
+
+    <!-- ==========================================
+         CONFIGURAÇÃO DO NEGÓCIO
+         Edite telefone, Instagram e preços CLP neste objeto.
+         Conversões USD/BRL usam a cotação atual consultada no carregamento da página.
+    =========================================== -->
+    <script>
+        const CONFIG = {
+            whatsappNumber: "56912345678", // Telefone formato internacional sem + (ex: Chile 569...)
+            instagramHandle: "ngtouch.cl", // Seu @ no Instagram
+            currencySymbol: "$",
+            currencyCode: "CLP",
+            prices: {
+                singleUnit: 18900, // Preço unitário de uma placa
+                pack5: 84900, // Preço pack 5 unidades
+                pack10: 149900, // Preço pack 10 unidades
+                combo3For2: 37800, // Três placas individuais pelo preço de duas
+            }
+        };
+
+        // Dicionário de textos da interface (ES, EN, PT).
+        // Para alterar um texto, edite a chave correspondente em cada idioma.
+        // Ao adicionar elementos com data-i18n, inclua a mesma chave nos três idiomas.
+        const TRANSLATIONS = {
+            es: {
+                navHome: "Inicio",
+                navCatalog: "Catálogo",
+                navGallery: "Galería",
+                navReviews: "Opiniones",
+                navPricing: "Planes",
+                navInfo: "Info",
+                navContact: "Contacto",
+                heroTag: "Tecnología NFC en tu negocio",
+                heroTitle: "Conecta tu negocio físico al mundo digital con <span class='bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent'>un solo Toque</span>",
+                heroDesc: "Placas de acrílico inteligentes con NFC + QR dinámico para Google Reviews, Instagram y Menú Digital. Eleva tus evaluaciones y ventas al instante.",
+                heroBtnWsp: "Solicitar por WhatsApp",
+                heroBtnPricing: "Ver planes y precios",
+                menuLabel: "Abrir o cerrar menú",
+                languageLabel: "Idioma / Language",
+                feat1Title: "Chip NFC Ultra Rápido",
+                feat1Desc: "Compatible con iPhone y Android sin instalar nada.",
+                feat2Title: "Links 100% Dinámicos",
+                feat2Desc: "Cambia el destino de tu placa cuando quieras sin cambiar el acrílico.",
+                feat3Title: "Resistente y Elegante",
+                feat3Desc: "Acrílico cristalino de alta durabilidad para mesas y mostradores.",
+                reviewsTitle: "Opiniones de clientes",
+                reviewsSubtitle: "Publicaremos aquí reseñas reales y verificadas con autorización de nuestros clientes.",
+                reviewsPlaceholder1: "Espacio reservado para una opinión real de una cafetería.",
+                reviewsPlaceholder2: "Espacio reservado para una opinión real de un hotel.",
+                reviewsPlaceholder3: "Espacio reservado para una opinión real de un restaurante.",
+                reviewsPending: "Estamos reuniendo opiniones verificadas. No publicamos testimonios inventados.",
+                catTitle: "Placas para cada conexión",
+                catSubtitle: "Elige un destino digital para tu negocio: redes sociales, reseñas, WhatsApp o tu propia página.",
+                galleryTitle: "Placas en detalle",
+                gallerySubtitle: "Modelos ilustrativos; publicaremos fotos reales de las placas cuando estén disponibles.",
+                gallery1Title: "Google Reviews",
+                gallery1Desc: "Invita a tus clientes a dejar una reseña con un solo toque.",
+                gallery1Alt: "Modelo de placa NGTouch para Google Reviews",
+                gallery2Title: "Instagram & WiFi",
+                gallery2Desc: "Comparte tu perfil y conecta a tus clientes al WiFi del local.",
+                gallery2Alt: "Modelo de placa NGTouch para Instagram y WiFi",
+                gallery3Title: "Menú Digital",
+                gallery3Desc: "Facilita el acceso a tu menú desde cada mesa o mostrador.",
+                gallery3Alt: "Modelo de placa NGTouch para menú digital",
+                prod1Name: "Placa Google Reviews",
+                prod1Desc: "Ideal para restaurantes, cafeterías y hoteles. Consigue más reseñas 5 estrellas de tus clientes.",
+                prod2Name: "Placa Instagram & WiFi",
+                prod2Desc: "Aumenta tus seguidores y conecta tus clientes al WiFi de tu local en segundos.",
+                prod3Name: "Pack Gastronómico (5 o 10 Placas)",
+                prod3Desc: "Equipa todas las mesas de tu restaurante o café con menú digital o valoraciones.",
+                prodInstagramName: "Placa Instagram",
+                prodInstagramDesc: "Invita a seguir tu perfil y descubrir tus publicaciones.",
+                prodWhatsAppName: "Placa WhatsApp",
+                prodWhatsAppDesc: "Abre un chat directo para reservas, consultas y pedidos.",
+                prodGoogleName: "Placa Reseñas Google",
+                prodGoogleDesc: "Lleva a tus clientes directamente a dejar una reseña.",
+                prodWebsiteName: "Placa para tu página web",
+                prodWebsiteDesc: "Abre tu sitio, menú digital, reservas o catálogo con un toque.",
+                prodSocialName: "Placa para otras redes sociales",
+                prodSocialDesc: "Conecta TikTok, Facebook y otros perfiles desde una sola placa.",
+                prodComboName: "Combo redes sociales: 3 por el precio de 2",
+                prodComboDesc: "Lleva tres placas para tus redes y paga solo dos.",
+                productImageAlt: "Ilustración provisoria de una placa NGTouch; reemplazar por la foto del producto.",
+                btnOrder: "Cotizar por WhatsApp",
+                popularModel: "Popular en Puerto Varas",
+                pricingTitle: "Planes y precios",
+                pricingSubtitle: "Elige la opción ideal para tu cafetería, hotel o restaurante en la Región de Los Lagos.",
+                pricingFxNote: "Los precios se cobran en CLP. La conversión a moneda extranjera es aproximada y usa el tipo de cambio actual.",
+                pricingSingleTitle: "Placa individual",
+                pricingSingleDesc: "Ideal para probar la experiencia NFC + QR en tu negocio.",
+                pricingPack5Title: "Pack de 5 placas",
+                pricingPack5Desc: "Una solución práctica para cafeterías y locales pequeños.",
+                pricingPack10Title: "Pack de 10 placas",
+                pricingPack10Desc: "Equipa las mesas de tu restaurante u hotel y ahorra por unidad.",
+                pricingComboTitle: "Combo redes sociales",
+                pricingComboDesc: "Tres placas para tus redes sociales por el precio de dos.",
+                pricingPopular: "Mejor precio",
+                pricingIncludes: "Diseño personalizado y configuración NFC + QR incluidos.",
+                pricingOrder: "Cotizar por WhatsApp",
+                quoteGeneral: "Hola NGTouch, me interesa información sobre las placas NFC + QR para mi negocio.",
+                quoteGreeting: "Hola NGTouch, quiero cotizar",
+                quoteSuffix: "para mi local en Puerto Varas / Los Lagos.",
+                fxLoading: "Consultando cambio actual…",
+                fxUnavailable: "Conversión no disponible; el precio CLP se mantiene.",
+                infoTitle: "Cómo funciona",
+                infoSubtitle: "Un pedido sencillo, coordinado contigo por WhatsApp.",
+                infoStep1Title: "Elige tu placa o combo",
+                infoStep1Desc: "Selecciona el modelo o pack que mejor se adapte a tu negocio.",
+                infoStep2Title: "Comparte tus enlaces",
+                infoStep2Desc: "Envíanos los links que quieres conectar y los datos necesarios para personalizar tu placa.",
+                infoStep3Title: "Confirma los detalles",
+                infoStep3Desc: "Coordinamos por WhatsApp tu pedido, forma de pago y disponibilidad de entrega o retiro.",
+                infoIncludedTitle: "Qué incluye",
+                infoIncludedDesc: "Diseño personalizado y configuración NFC + QR para los enlaces acordados.",
+                infoCompatibilityTitle: "Compatibilidad",
+                infoCompatibilityDesc: "Usa NFC con un celular compatible o escanea el QR con la cámara. No necesitas instalar una app.",
+                infoDeliveryTitle: "Entrega y despacho",
+                infoDeliveryDesc: "Estamos en Puerto Varas y despachamos a Puerto Montt, Frutillar y la Región de Los Lagos. Consulta por WhatsApp cobertura, plazos y costos.",
+                infoPickupTitle: "Retiro del pedido",
+                infoPickupDesc: "Consulta por WhatsApp si hay disponibilidad para retirar en Puerto Varas y coordina los detalles.",
+                infoPaymentTitle: "Medios de pago",
+                infoPaymentDesc: "Aceptamos efectivo o transferencia bancaria. Compartimos los datos al confirmar el pedido.",
+                contactTitle: "¿Listo para impulsar tu local comercial?",
+                contactDesc: "Estamos ubicados en Puerto Varas y despachamos a Puerto Montt, Frutillar y toda la Región de Los Lagos.",
+                btnDirectWsp: "Escribir al WhatsApp",
+                btnDirectInsta: "Ver nuestro Instagram"
+            },
+            en: {
+                navHome: "Home",
+                navCatalog: "Catalog",
+                navGallery: "Gallery",
+                navReviews: "Reviews",
+                navPricing: "Pricing",
+                navInfo: "Info",
+                navContact: "Contact",
+                heroTag: "NFC Technology for Your Business",
+                heroTitle: "Connect your physical store to digital with <span class='bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent'>a single Tap</span>",
+                heroDesc: "Smart acrylic displays with NFC + dynamic QR for Google Reviews, Instagram, and Digital Menus. Instantly boost your ratings and sales.",
+                heroBtnWsp: "Order via WhatsApp",
+                heroBtnPricing: "View plans & pricing",
+                menuLabel: "Open or close menu",
+                languageLabel: "Idioma / Language",
+                feat1Title: "Ultra-Fast NFC Chip",
+                feat1Desc: "Fully compatible with iPhone and Android with zero apps required.",
+                feat2Title: "100% Dynamic Links",
+                feat2Desc: "Update your target link anytime without replacing the physical plate.",
+                feat3Title: "Durable & Elegant",
+                feat3Desc: "High-grade crystal clear acrylic built for tables and counters.",
+                reviewsTitle: "Customer reviews",
+                reviewsSubtitle: "Real, verified reviews will be shared here with our customers’ permission.",
+                reviewsPlaceholder1: "Reserved for a genuine review from a cafe.",
+                reviewsPlaceholder2: "Reserved for a genuine review from a hotel.",
+                reviewsPlaceholder3: "Reserved for a genuine review from a restaurant.",
+                reviewsPending: "We’re collecting verified feedback. No testimonials are fabricated.",
+                catTitle: "Smart displays for every connection",
+                catSubtitle: "Choose a digital destination for your business: social media, reviews, WhatsApp, or your website.",
+                galleryTitle: "Display plates up close",
+                gallerySubtitle: "Illustrative mockups; real product photos will be added when available.",
+                gallery1Title: "Google Reviews",
+                gallery1Desc: "Invite your customers to leave a review with a single tap.",
+                gallery1Alt: "NGTouch Google Reviews display plate model",
+                gallery2Title: "Instagram & WiFi",
+                gallery2Desc: "Share your profile and connect customers to your business WiFi.",
+                gallery2Alt: "NGTouch Instagram and WiFi display plate model",
+                gallery3Title: "Digital Menu",
+                gallery3Desc: "Make your menu easy to access from every table or counter.",
+                gallery3Alt: "NGTouch digital menu display plate model",
+                prod1Name: "Google Reviews Display",
+                prod1Desc: "Ideal for cafes, restaurants, and hotels. Get more 5-star reviews from happy guests.",
+                prod2Name: "Instagram & WiFi Display",
+                prod2Desc: "Gain followers instantly and share your customer WiFi in seconds.",
+                prod3Name: "Gastronomy Pack (5 or 10 Units)",
+                prod3Desc: "Equip every dining table with digital menus or review links.",
+                prodInstagramName: "Instagram display",
+                prodInstagramDesc: "Invite customers to follow your profile and explore your posts.",
+                prodWhatsAppName: "WhatsApp display",
+                prodWhatsAppDesc: "Open a direct chat for bookings, questions, and orders.",
+                prodGoogleName: "Google Reviews display",
+                prodGoogleDesc: "Take customers straight to your review page.",
+                prodWebsiteName: "Website display",
+                prodWebsiteDesc: "Open your website, digital menu, booking page, or catalog with one tap.",
+                prodSocialName: "Other social media display",
+                prodSocialDesc: "Connect TikTok, Facebook, and other profiles from one display.",
+                prodComboName: "Social media combo: 3 for the price of 2",
+                prodComboDesc: "Get three social media displays and pay for only two.",
+                productImageAlt: "Temporary illustration of an NGTouch display; replace with a product photo.",
+                btnOrder: "Order on WhatsApp",
+                popularModel: "Popular in Puerto Varas",
+                pricingTitle: "Plans & pricing",
+                pricingSubtitle: "Choose the right option for your cafe, hotel, or restaurant in the Los Lagos Region.",
+                pricingFxNote: "Prices are charged in CLP. Foreign-currency amounts are approximate and use the current exchange rate.",
+                pricingSingleTitle: "Single display",
+                pricingSingleDesc: "A great way to try the NFC + QR experience at your business.",
+                pricingPack5Title: "5-display pack",
+                pricingPack5Desc: "A practical choice for cafes and smaller businesses.",
+                pricingPack10Title: "10-display pack",
+                pricingPack10Desc: "Equip your restaurant or hotel tables and save per display.",
+                pricingComboTitle: "Social media combo",
+                pricingComboDesc: "Three displays for your social accounts for the price of two.",
+                pricingPopular: "Best value",
+                pricingIncludes: "Custom design and NFC + QR setup included.",
+                pricingOrder: "Get a WhatsApp quote",
+                quoteGeneral: "Hello NGTouch, I’d like information about NFC + QR displays for my business.",
+                quoteGreeting: "Hello NGTouch, I’d like a quote for",
+                quoteSuffix: "for my business in Puerto Varas / Los Lagos.",
+                fxLoading: "Checking current exchange rate…",
+                fxUnavailable: "Conversion unavailable; CLP price remains valid.",
+                infoTitle: "How it works",
+                infoSubtitle: "A simple order, coordinated with you over WhatsApp.",
+                infoStep1Title: "Choose a display or bundle",
+                infoStep1Desc: "Select the model or pack that best fits your business.",
+                infoStep2Title: "Share your links",
+                infoStep2Desc: "Send us the links you want to connect and the details needed to personalize your display.",
+                infoStep3Title: "Confirm the details",
+                infoStep3Desc: "We’ll coordinate your order, payment method, and delivery or pickup availability over WhatsApp.",
+                infoIncludedTitle: "What’s included",
+                infoIncludedDesc: "Custom design and NFC + QR setup for the agreed links.",
+                infoCompatibilityTitle: "Compatibility",
+                infoCompatibilityDesc: "Tap with an NFC-compatible phone or scan the QR code with your camera. No app installation is needed.",
+                infoDeliveryTitle: "Delivery and shipping",
+                infoDeliveryDesc: "Based in Puerto Varas, with shipping to Puerto Montt, Frutillar, and the Los Lagos Region. Ask us on WhatsApp about coverage, timing, and cost.",
+                infoPickupTitle: "Order pickup",
+                infoPickupDesc: "Contact us on WhatsApp to check pickup availability in Puerto Varas and arrange the details.",
+                infoPaymentTitle: "Payment methods",
+                infoPaymentDesc: "We accept cash or bank transfer. Payment details are shared when your order is confirmed.",
+                contactTitle: "Ready to upgrade your store in Chile?",
+                contactDesc: "Based in Puerto Varas, shipping to Puerto Montt, Frutillar, and all Región de Los Lagos.",
+                btnDirectWsp: "Chat on WhatsApp",
+                btnDirectInsta: "Check our Instagram"
+            },
+            pt: {
+                navHome: "Início",
+                navCatalog: "Catálogo",
+                navGallery: "Galeria",
+                navReviews: "Opiniões",
+                navPricing: "Preços",
+                navInfo: "Info",
+                navContact: "Contato",
+                heroTag: "Tecnologia NFC para o seu negócio",
+                heroTitle: "Conecte seu comércio físico ao digital com <span class='bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent'>um único Toque</span>",
+                heroDesc: "Placas inteligentes de acrílico com NFC + QR dinâmico para Google Reviews, Instagram e Cardápio Digital. Aumente suas avaliações e vendas instantaneamente.",
+                heroBtnWsp: "Pedir pelo WhatsApp",
+                heroBtnPricing: "Ver planos e preços",
+                menuLabel: "Abrir ou fechar menu",
+                languageLabel: "Idioma / Language",
+                feat1Title: "Chip NFC Ultra-Rápido",
+                feat1Desc: "Compatível com iPhone e Android sem precisar instalar nada.",
+                feat2Title: "Links 100% Dinâmicos",
+                feat2Desc: "Altere o destino da placa quando quiser sem trocar o acrílico.",
+                feat3Title: "Resistente e Elegante",
+                feat3Desc: "Acrílico cristalino de alta durabilidade para mesas e balcões.",
+                reviewsTitle: "Opiniões de clientes",
+                reviewsSubtitle: "Publicaremos aqui avaliações reais e verificadas com autorização dos clientes.",
+                reviewsPlaceholder1: "Espaço reservado para uma opinião real de uma cafeteria.",
+                reviewsPlaceholder2: "Espaço reservado para uma opinião real de um hotel.",
+                reviewsPlaceholder3: "Espaço reservado para uma opinião real de um restaurante.",
+                reviewsPending: "Estamos reunindo opiniões verificadas. Não publicamos depoimentos inventados.",
+                catTitle: "Placas para cada conexão",
+                catSubtitle: "Escolha um destino digital para seu negócio: redes sociais, avaliações, WhatsApp ou seu site.",
+                galleryTitle: "Detalhes das placas",
+                gallerySubtitle: "Modelos ilustrativos; fotos reais dos produtos serão adicionadas quando estiverem disponíveis.",
+                gallery1Title: "Google Reviews",
+                gallery1Desc: "Convide seus clientes a deixar uma avaliação com um único toque.",
+                gallery1Alt: "Modelo de placa NGTouch para Google Reviews",
+                gallery2Title: "Instagram & WiFi",
+                gallery2Desc: "Compartilhe seu perfil e conecte seus clientes ao WiFi do estabelecimento.",
+                gallery2Alt: "Modelo de placa NGTouch para Instagram e WiFi",
+                gallery3Title: "Cardápio Digital",
+                gallery3Desc: "Facilite o acesso ao cardápio em cada mesa ou balcão.",
+                gallery3Alt: "Modelo de placa NGTouch para cardápio digital",
+                prod1Name: "Placa Google Reviews",
+                prod1Desc: "Ideal para restaurantes, cafeterias e hotéis. Receba mais avaliações 5 estrelas.",
+                prod2Name: "Placa Instagram & WiFi",
+                prod2Desc: "Ganhe seguidores e conecte seus clientes ao WiFi em poucos segundos.",
+                prod3Name: "Pack Gastronômico (5 ou 10 Unidades)",
+                prod3Desc: "Equipe todas as mesas com cardápio digital ou links de avaliação.",
+                prodInstagramName: "Placa Instagram",
+                prodInstagramDesc: "Convide seus clientes a seguir seu perfil e conhecer suas publicações.",
+                prodWhatsAppName: "Placa WhatsApp",
+                prodWhatsAppDesc: "Abra uma conversa direta para reservas, dúvidas e pedidos.",
+                prodGoogleName: "Placa Avaliações Google",
+                prodGoogleDesc: "Leve seus clientes diretamente à página para deixar uma avaliação.",
+                prodWebsiteName: "Placa para seu site",
+                prodWebsiteDesc: "Acesse seu site, cardápio digital, reservas ou catálogo com um toque.",
+                prodSocialName: "Placa para outras redes sociais",
+                prodSocialDesc: "Conecte TikTok, Facebook e outros perfis em uma única placa.",
+                prodComboName: "Combo redes sociais: 3 pelo preço de 2",
+                prodComboDesc: "Leve três placas para suas redes sociais e pague apenas duas.",
+                productImageAlt: "Ilustração provisória de uma placa NGTouch; substitua pela foto do produto.",
+                btnOrder: "Cotar via WhatsApp",
+                popularModel: "Popular em Puerto Varas",
+                pricingTitle: "Planos e preços",
+                pricingSubtitle: "Escolha a opção ideal para sua cafeteria, hotel ou restaurante na Região de Los Lagos.",
+                pricingFxNote: "A cobrança é feita em CLP. O valor em moeda estrangeira é aproximado e usa o câmbio atual.",
+                pricingSingleTitle: "Placa individual",
+                pricingSingleDesc: "Ideal para experimentar a experiência NFC + QR no seu negócio.",
+                pricingPack5Title: "Pack com 5 placas",
+                pricingPack5Desc: "Uma solução prática para cafeterias e estabelecimentos menores.",
+                pricingPack10Title: "Pack com 10 placas",
+                pricingPack10Desc: "Equipe as mesas do seu restaurante ou hotel e economize por unidade.",
+                pricingComboTitle: "Combo redes sociais",
+                pricingComboDesc: "Três placas para suas redes sociais pelo preço de duas.",
+                pricingPopular: "Melhor preço",
+                pricingIncludes: "Design personalizado e configuração NFC + QR incluídos.",
+                pricingOrder: "Pedir orçamento no WhatsApp",
+                quoteGeneral: "Olá NGTouch, quero informações sobre as placas NFC + QR para meu negócio.",
+                quoteGreeting: "Olá NGTouch, quero um orçamento para",
+                quoteSuffix: "para meu negócio em Puerto Varas / Los Lagos.",
+                fxLoading: "Consultando câmbio atual…",
+                fxUnavailable: "Conversão indisponível; o preço em CLP permanece válido.",
+                infoTitle: "Como funciona",
+                infoSubtitle: "Um pedido simples, combinado com você pelo WhatsApp.",
+                infoStep1Title: "Escolha sua placa ou combo",
+                infoStep1Desc: "Selecione o modelo ou pack que melhor atende ao seu negócio.",
+                infoStep2Title: "Envie seus links",
+                infoStep2Desc: "Envie os links que deseja conectar e os dados necessários para personalizar sua placa.",
+                infoStep3Title: "Confirme os detalhes",
+                infoStep3Desc: "Combinamos pelo WhatsApp o pedido, a forma de pagamento e a disponibilidade para entrega ou retirada.",
+                infoIncludedTitle: "O que está incluído",
+                infoIncludedDesc: "Design personalizado e configuração NFC + QR para os links combinados.",
+                infoCompatibilityTitle: "Compatibilidade",
+                infoCompatibilityDesc: "Aproxime um celular compatível com NFC ou leia o QR code com a câmera. Não é necessário instalar aplicativo.",
+                infoDeliveryTitle: "Entrega e envio",
+                infoDeliveryDesc: "Estamos em Puerto Varas e enviamos para Puerto Montt, Frutillar e a Região de Los Lagos. Consulte pelo WhatsApp a cobertura, os prazos e os custos.",
+                infoPickupTitle: "Retirada do pedido",
+                infoPickupDesc: "Consulte pelo WhatsApp a disponibilidade para retirar em Puerto Varas e combine os detalhes.",
+                infoPaymentTitle: "Formas de pagamento",
+                infoPaymentDesc: "Aceitamos dinheiro ou transferência bancária. Enviamos os dados ao confirmar o pedido.",
+                contactTitle: "Pronto para alavancar seu negócio local?",
+                contactDesc: "Estamos localizados em Puerto Varas e entregamos em Puerto Montt, Frutillar e toda a região.",
+                btnDirectWsp: "Chamar no WhatsApp",
+                btnDirectInsta: "Acessar Instagram"
+            }
+        };
+    </script>
+
+    <!-- ==========================================
+         CABEÇALHO E NAVEGAÇÃO
+         Contém a marca, âncoras das seções, seletor de idioma e atalho para WhatsApp.
+         Altere os destinos href para apontar a outras seções; os textos data-i18n vêm do dicionário.
+         Ajuste responsividade, cores e espaçamentos nas classes Tailwind deste bloco.
+    =========================================== -->
+    <header id="site-header" class="fixed inset-x-0 top-0 z-50 border-b border-transparent bg-transparent text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="h-[4.5rem] flex items-center justify-between gap-3">
+                <!-- Logo pequeno: usa o recorte do símbolo inferior do arquivo ngtouch-logo.png. -->
+                <a href="#home" class="flex items-center gap-2 sm:gap-3 shrink-0" aria-label="NGTouch - início">
+                    <span class="brand-mark-crop rounded-xl border border-white/10 bg-slate-950/70">
+                        <img src="ngtouch-logo.png" alt="Símbolo NGTouch" width="1152" height="768">
+                    </span>
+                    <span class="hidden sm:block text-lg sm:text-xl font-black tracking-tight">NG<span class="text-violet-400">Touch</span></span>
+                </a>
+
+                <!-- Navegação para telas médias e grandes. -->
+                <nav class="hidden lg:flex items-center gap-6 font-semibold text-sm text-slate-200">
+                    <a href="#home" class="hover:text-violet-300 transition" data-i18n="navHome">Inicio</a>
+                    <a href="#catalog" class="hover:text-violet-300 transition" data-i18n="navCatalog">Catálogo</a>
+                    <a href="#gallery" class="hover:text-violet-300 transition" data-i18n="navGallery">Galería</a>
+                    <a href="#reviews" class="hover:text-violet-300 transition" data-i18n="navReviews">Opiniones</a>
+                    <a href="#pricing" class="hover:text-violet-300 transition" data-i18n="navPricing">Planes</a>
+                    <a href="#info" class="hover:text-violet-300 transition" data-i18n="navInfo">Info</a>
+                    <a href="#contact" class="hover:text-violet-300 transition" data-i18n="navContact">Contacto</a>
+                </nav>
+
+                <!-- Idiomas e contato no cabeçalho desktop; as bandeiras usam emojis do sistema. -->
+                <div class="hidden lg:flex items-center gap-3">
+                    <div class="flex items-center rounded-xl border border-white/15 bg-slate-950/40 p-1 text-xs font-bold" aria-label="Selecionar idioma">
+                        <button type="button" data-lang="es" class="language-button px-2 py-1.5 rounded-lg transition" aria-label="Español">🇪🇸 ES</button>
+                        <button type="button" data-lang="en" class="language-button px-2 py-1.5 rounded-lg transition" aria-label="English">🇬🇧 EN</button>
+                        <button type="button" data-lang="pt" class="language-button px-2 py-1.5 rounded-lg transition" aria-label="Português">🇧🇷 PT</button>
+                    </div>
+                    <a id="top-wsp-btn" href="#" target="_blank" rel="noopener noreferrer" class="bg-gradient-to-r from-indigo-600 to-violet-500 hover:brightness-110 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition items-center gap-2 inline-flex">
+                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                        <span>WhatsApp</span>
+                    </a>
+                </div>
+
+                <!-- Botão de abertura do painel lateral em celulares e tablets. -->
+                <button id="mobile-menu-toggle" type="button" class="lg:hidden w-11 h-11 flex items-center justify-center rounded-xl border border-white/15 bg-slate-950/40 text-white" aria-controls="mobile-menu" aria-expanded="false">
+                    <i id="mobile-menu-icon" class="fa-solid fa-bars text-lg" aria-hidden="true"></i>
+                    <span class="sr-only" data-i18n="menuLabel">Abrir o fechar menu</span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Fundo escurecido clicável: fecha o menu e destaca o painel sem deixar o conteúdo competir. -->
+    <button id="mobile-menu-backdrop" type="button" class="lg:hidden fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm" aria-label="Fechar menu"></button>
+
+    <!-- Menu lateral móvel com fundo opaco; o conteúdo permanece legível sobre qualquer seção da página. -->
+    <aside id="mobile-menu" class="lg:hidden fixed right-0 top-0 z-[70] h-[100dvh] w-[min(88vw,22rem)] overflow-y-auto border-l border-white/10 bg-slate-950 text-white shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="mobile-menu-title" aria-hidden="true">
+        <div class="flex min-h-full flex-col p-5 sm:p-6">
+            <div class="flex items-center justify-between border-b border-white/10 pb-5">
+                <a href="#home" class="flex items-center gap-3 mobile-menu-link" aria-label="NGTouch - início">
+                    <span class="brand-mark-crop h-12 w-12 rounded-lg border border-white/10 bg-black">
+                        <img src="ngtouch-logo.png" alt="" width="1152" height="768">
+                    </span>
+                    <span id="mobile-menu-title" class="text-xl font-black">NG<span class="text-violet-400">Touch</span></span>
+                </a>
+                <button id="mobile-menu-close" type="button" class="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10" aria-label="Fechar menu">
+                    <i class="fa-solid fa-xmark text-lg" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <nav class="flex flex-col gap-1 py-5 text-base font-semibold text-slate-100">
+                <a href="#home" class="mobile-menu-link rounded-xl px-4 py-3 hover:bg-white/10 hover:text-violet-300 transition" data-i18n="navHome">Inicio</a>
+                <a href="#catalog" class="mobile-menu-link rounded-xl px-4 py-3 hover:bg-white/10 hover:text-violet-300 transition" data-i18n="navCatalog">Catálogo</a>
+                <a href="#gallery" class="mobile-menu-link rounded-xl px-4 py-3 hover:bg-white/10 hover:text-violet-300 transition" data-i18n="navGallery">Galería</a>
+                <a href="#reviews" class="mobile-menu-link rounded-xl px-4 py-3 hover:bg-white/10 hover:text-violet-300 transition" data-i18n="navReviews">Opiniones</a>
+                <a href="#pricing" class="mobile-menu-link rounded-xl px-4 py-3 hover:bg-white/10 hover:text-violet-300 transition" data-i18n="navPricing">Planes</a>
+                <a href="#info" class="mobile-menu-link rounded-xl px-4 py-3 hover:bg-white/10 hover:text-violet-300 transition" data-i18n="navInfo">Info</a>
+                <a href="#contact" class="mobile-menu-link rounded-xl px-4 py-3 hover:bg-white/10 hover:text-violet-300 transition" data-i18n="navContact">Contacto</a>
+            </nav>
+
+            <div class="mt-auto space-y-5 border-t border-white/10 pt-5">
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-slate-400" data-i18n="languageLabel">Idioma / Language</p>
+                <div class="grid grid-cols-3 gap-2" aria-label="Selecionar idioma">
+                    <button type="button" data-lang="es" class="language-button rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-sm font-bold transition">🇪🇸 ES</button>
+                    <button type="button" data-lang="en" class="language-button rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-sm font-bold transition">🇬🇧 EN</button>
+                    <button type="button" data-lang="pt" class="language-button rounded-xl border border-white/10 bg-white/5 px-2 py-3 text-sm font-bold transition">🇧🇷 PT</button>
+                </div>
+                <a id="mobile-wsp-btn" href="#" target="_blank" rel="noopener noreferrer" class="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-500 px-4 py-3.5 font-bold text-white shadow-lg shadow-violet-950/30">
+                    <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                    <span>WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ==========================================
+         APRESENTAÇÃO PRINCIPAL (HERO)
+         Mostra a proposta de valor, os botões de contato e um mockup da placa.
+         Edite os textos no dicionário TRANSLATIONS; altere o destino do CTA no href.
+         As classes Tailwind controlam a composição mobile-first e os efeitos do fundo.
+    =========================================== -->
+    <section id="home" class="relative text-white pt-28 pb-20 lg:pt-36 lg:pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <!-- Brilho decorativo indigo/violeta sobre a textura tecnológica definida no CSS. -->
+        <div class="absolute -top-24 -right-24 w-96 h-96 bg-violet-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-5xl mx-auto relative z-10">
+            <div class="space-y-6 text-center">
+                <!-- Marca separada da arte: símbolo pequeno e informações editáveis como texto da página. -->
+                <div class="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+                    <span class="hero-mark-crop rounded-2xl border border-white/10 bg-black/60 shadow-xl shadow-violet-950/30">
+                        <img src="ngtouch-logo.png" alt="" width="1152" height="768">
+                    </span>
+                    <div class="space-y-1">
+                        <p class="text-3xl sm:text-4xl font-black tracking-tight text-white">NG<span class="text-violet-400">Touch</span></p>
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.28em] text-slate-300">NFC <span class="text-violet-400">·</span> QR <span class="text-violet-400">·</span> Smart Display</p>
+                        <p class="text-xs font-medium tracking-[0.2em] text-slate-400">CHILE</p>
+                    </div>
+                </div>
+                <div class="inline-flex items-center space-x-2 bg-slate-900/70 border border-white/10 px-3 py-1.5 rounded-full text-xs font-bold text-violet-300">
+                    <span class="w-2 h-2 rounded-full bg-violet-400 animate-ping"></span>
+                    <span data-i18n="heroTag">TECNOLOGÍA NFC EN TU REGIÓN</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight" data-i18n="heroTitle">
+                    Conecta tu negocio físico al mundo digital con <span class='bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent'>un solo Toque</span>
+                </h1>
+                <p class="text-slate-300 text-base sm:text-lg max-w-xl mx-auto" data-i18n="heroDesc">
+                    Placas de acrílico inteligentes con NFC + QR dinámico para Google Reviews, Instagram y Menú Digital. Eleva tus evaluaciones y ventas al instante.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+                    <a id="hero-wsp-btn" href="#" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto bg-gradient-to-r from-indigo-600 to-violet-500 hover:brightness-110 text-white px-8 py-4 rounded-xl font-bold text-center shadow-lg shadow-violet-950/40 transition flex items-center justify-center space-x-3">
+                        <i class="fa-brands fa-whatsapp text-xl"></i>
+                        <span data-i18n="heroBtnWsp">Solicitar por WhatsApp</span>
+                    </a>
+                    <a href="#pricing" class="w-full sm:w-auto bg-slate-900/70 hover:bg-slate-800 text-slate-100 border border-white/15 px-6 py-4 rounded-xl font-semibold transition text-center" data-i18n="heroBtnPricing">
+                        Ver planes y precios
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         BENEFÍCIOS DO PRODUTO
+         Resume compatibilidade NFC, links dinâmicos e acabamento das placas.
+         Edite feat1Title/feat1Desc, feat2Title/feat2Desc e feat3Title/feat3Desc em TRANSLATIONS;
+         os ícones usam FontAwesome e podem ser trocados pelas classes fa-*.
+         Para ajustar quantidade de colunas ou espaçamento, altere as classes grid/gap.
+    =========================================== -->
+    <section id="features" class="py-16 bg-slate-950 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="flex items-start space-x-4 p-4 rounded-xl">
+                    <div class="w-12 h-12 bg-indigo-500/10 text-indigo-300 rounded-xl flex items-center justify-center text-xl shrink-0 border border-indigo-400/20">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-base" data-i18n="feat1Title">Chip NFC Ultra Rápido</h4>
+                        <p class="text-xs text-slate-400 mt-1" data-i18n="feat1Desc">Compatible con iPhone y Android sin instalar nada.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4 p-4 rounded-xl">
+                    <div class="w-12 h-12 bg-violet-500/10 text-violet-300 rounded-xl flex items-center justify-center text-xl shrink-0 border border-violet-400/20">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-base" data-i18n="feat2Title">Links 100% Dinámicos</h4>
+                        <p class="text-xs text-slate-400 mt-1" data-i18n="feat2Desc">Cambia el destino de tu placa cuando quieras sin cambiar el acrílico.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4 p-4 rounded-xl">
+                    <div class="w-12 h-12 bg-indigo-500/10 text-indigo-300 rounded-xl flex items-center justify-center text-xl shrink-0 border border-indigo-400/20">
+                        <i class="fa-solid fa-gem"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-white text-base" data-i18n="feat3Title">Resistente y Elegante</h4>
+                        <p class="text-xs text-slate-400 mt-1" data-i18n="feat3Desc">Acrílico cristalino de alta durabilidad para mesas y mostradores.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         OPINIÕES DE CLIENTES
+         Área reservada para depoimentos verdadeiros; publique avaliações somente com autorização.
+         Troque os textos reviewsPlaceholder* pelos comentários reais enviados pelos clientes.
+    =========================================== -->
+    <section id="reviews" class="py-16 bg-slate-950 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-8 space-y-3">
+                <h2 class="text-3xl font-black text-white" data-i18n="reviewsTitle">Opiniones de clientes</h2>
+                <p class="text-sm text-slate-400" data-i18n="reviewsSubtitle">Publicaremos aquí reseñas reales y verificadas con autorización de nuestros clientes.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <article class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-5 text-center">
+                    <i class="fa-solid fa-quote-left text-violet-400 mb-3" aria-hidden="true"></i>
+                    <p class="text-sm text-slate-300" data-i18n="reviewsPlaceholder1">Espacio reservado para una opinión real de una cafetería.</p>
+                </article>
+                <article class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-5 text-center">
+                    <i class="fa-solid fa-quote-left text-violet-400 mb-3" aria-hidden="true"></i>
+                    <p class="text-sm text-slate-300" data-i18n="reviewsPlaceholder2">Espacio reservado para una opinión real de un hotel.</p>
+                </article>
+                <article class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/60 p-5 text-center">
+                    <i class="fa-solid fa-quote-left text-violet-400 mb-3" aria-hidden="true"></i>
+                    <p class="text-sm text-slate-300" data-i18n="reviewsPlaceholder3">Espacio reservado para una opinión real de un restaurante.</p>
+                </article>
+            </div>
+            <p class="mt-5 text-center text-xs text-slate-500" data-i18n="reviewsPending">Estamos reuniendo opiniones verificadas. No publicamos testimonios inventados.</p>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         CATÁLOGO E PREÇOS DOS MODELOS
+         Apresenta os três produtos e seus botões de cotação pelo WhatsApp.
+         Cada placa usa uma imagem ilustrativa provisória ao lado do nome.
+         Substitua cada src de imagem pela foto real quando disponível; configure nomes em TRANSLATIONS.
+         Preços CLP e conversões aparecem a partir de CONFIG.prices e das taxas de câmbio atuais.
+    =========================================== -->
+    <section id="catalog" class="py-20 bg-slate-900/50 border-y border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-2">
+                <h2 class="text-3xl font-black text-white" data-i18n="catTitle">Nuestros Modelos Destacados</h2>
+                <p class="text-slate-400 text-sm" data-i18n="catSubtitle">Diseño minimalista con tu logo e identidad de marca.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+                <!-- Imagem provisória: substitua o src pela foto da placa quando o produto estiver fotografado. -->
+                <article class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-lg hover:border-indigo-400/50 transition flex flex-col">
+                    <div class="flex items-center gap-4">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 110'%3E%3Crect width='160' height='110' rx='14' fill='%230f172a'/%3E%3Crect x='35' y='10' width='90' height='90' rx='12' fill='%231e293b' stroke='%238b5cf6' stroke-width='3'/%3E%3Cpath d='M52 31h20v20H52zm36 0h20v20H88zM52 67h20v20H52zm36 0h20v20H88z' fill='%23c4b5fd'/%3E%3C/svg%3E" alt="Ilustração provisória da placa Instagram" data-i18n-alt="productImageAlt" class="h-16 w-20 shrink-0 rounded-xl object-cover">
+                        <h3 class="text-lg font-bold text-white" data-i18n="prodInstagramName">Placa Instagram</h3>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed mt-5 flex-1" data-i18n="prodInstagramDesc">Invita a seguir tu perfil y descubrir tus publicaciones.</p>
+                    <div class="price-display mt-5" data-price-key="singleUnit">
+                        <p class="text-xl font-black text-white">$<span data-clp-amount>18.900</span> CLP</p>
+                        <p class="text-xs text-slate-400 mt-1" data-fx-price></p>
+                    </div>
+                    <button type="button" onclick="orderProduct('prodInstagramName')" class="mt-5 w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-sm transition" data-i18n="btnOrder">Cotizar por WhatsApp</button>
+                </article>
+
+                <article class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-lg hover:border-indigo-400/50 transition flex flex-col">
+                    <div class="flex items-center gap-4">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 110'%3E%3Crect width='160' height='110' rx='14' fill='%230f172a'/%3E%3Crect x='35' y='10' width='90' height='90' rx='12' fill='%231e293b' stroke='%238b5cf6' stroke-width='3'/%3E%3Cpath d='M52 31h20v20H52zm36 0h20v20H88zM52 67h20v20H52zm36 0h20v20H88z' fill='%23c4b5fd'/%3E%3C/svg%3E" alt="Ilustração provisória da placa WhatsApp" data-i18n-alt="productImageAlt" class="h-16 w-20 shrink-0 rounded-xl object-cover">
+                        <h3 class="text-lg font-bold text-white" data-i18n="prodWhatsAppName">Placa WhatsApp</h3>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed mt-5 flex-1" data-i18n="prodWhatsAppDesc">Abre un chat directo para reservas, consultas y pedidos.</p>
+                    <div class="price-display mt-5" data-price-key="singleUnit">
+                        <p class="text-xl font-black text-white">$<span data-clp-amount>18.900</span> CLP</p>
+                        <p class="text-xs text-slate-400 mt-1" data-fx-price></p>
+                    </div>
+                    <button type="button" onclick="orderProduct('prodWhatsAppName')" class="mt-5 w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-sm transition" data-i18n="btnOrder">Cotizar por WhatsApp</button>
+                </article>
+
+                <article class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-lg hover:border-indigo-400/50 transition flex flex-col">
+                    <div class="flex items-center gap-4">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 110'%3E%3Crect width='160' height='110' rx='14' fill='%230f172a'/%3E%3Crect x='35' y='10' width='90' height='90' rx='12' fill='%231e293b' stroke='%238b5cf6' stroke-width='3'/%3E%3Cpath d='M52 31h20v20H52zm36 0h20v20H88zM52 67h20v20H52zm36 0h20v20H88z' fill='%23c4b5fd'/%3E%3C/svg%3E" alt="Ilustração provisória da placa de avaliações Google" data-i18n-alt="productImageAlt" class="h-16 w-20 shrink-0 rounded-xl object-cover">
+                        <h3 class="text-lg font-bold text-white" data-i18n="prodGoogleName">Placa Reseñas Google</h3>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed mt-5 flex-1" data-i18n="prodGoogleDesc">Lleva a tus clientes directamente a dejar una reseña.</p>
+                    <div class="price-display mt-5" data-price-key="singleUnit">
+                        <p class="text-xl font-black text-white">$<span data-clp-amount>18.900</span> CLP</p>
+                        <p class="text-xs text-slate-400 mt-1" data-fx-price></p>
+                    </div>
+                    <button type="button" onclick="orderProduct('prodGoogleName')" class="mt-5 w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-sm transition" data-i18n="btnOrder">Cotizar por WhatsApp</button>
+                </article>
+
+                <article class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-lg hover:border-indigo-400/50 transition flex flex-col">
+                    <div class="flex items-center gap-4">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 110'%3E%3Crect width='160' height='110' rx='14' fill='%230f172a'/%3E%3Crect x='35' y='10' width='90' height='90' rx='12' fill='%231e293b' stroke='%238b5cf6' stroke-width='3'/%3E%3Cpath d='M52 31h20v20H52zm36 0h20v20H88zM52 67h20v20H52zm36 0h20v20H88z' fill='%23c4b5fd'/%3E%3C/svg%3E" alt="Ilustração provisória da placa para site" data-i18n-alt="productImageAlt" class="h-16 w-20 shrink-0 rounded-xl object-cover">
+                        <h3 class="text-lg font-bold text-white" data-i18n="prodWebsiteName">Placa para tu página web</h3>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed mt-5 flex-1" data-i18n="prodWebsiteDesc">Abre tu sitio, menú digital, reservas o catálogo con un toque.</p>
+                    <div class="price-display mt-5" data-price-key="singleUnit">
+                        <p class="text-xl font-black text-white">$<span data-clp-amount>18.900</span> CLP</p>
+                        <p class="text-xs text-slate-400 mt-1" data-fx-price></p>
+                    </div>
+                    <button type="button" onclick="orderProduct('prodWebsiteName')" class="mt-5 w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-sm transition" data-i18n="btnOrder">Cotizar por WhatsApp</button>
+                </article>
+
+                <article class="bg-slate-900 rounded-2xl border border-slate-700 p-6 shadow-lg hover:border-indigo-400/50 transition flex flex-col">
+                    <div class="flex items-center gap-4">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 110'%3E%3Crect width='160' height='110' rx='14' fill='%230f172a'/%3E%3Crect x='35' y='10' width='90' height='90' rx='12' fill='%231e293b' stroke='%238b5cf6' stroke-width='3'/%3E%3Cpath d='M52 31h20v20H52zm36 0h20v20H88zM52 67h20v20H52zm36 0h20v20H88z' fill='%23c4b5fd'/%3E%3C/svg%3E" alt="Ilustração provisória da placa para redes sociais" data-i18n-alt="productImageAlt" class="h-16 w-20 shrink-0 rounded-xl object-cover">
+                        <h3 class="text-lg font-bold text-white" data-i18n="prodSocialName">Placa para otras redes sociales</h3>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed mt-5 flex-1" data-i18n="prodSocialDesc">Conecta TikTok, Facebook y otros perfiles desde una sola placa.</p>
+                    <div class="price-display mt-5" data-price-key="singleUnit">
+                        <p class="text-xl font-black text-white">$<span data-clp-amount>18.900</span> CLP</p>
+                        <p class="text-xs text-slate-400 mt-1" data-fx-price></p>
+                    </div>
+                    <button type="button" onclick="orderProduct('prodSocialName')" class="mt-5 w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl text-sm transition" data-i18n="btnOrder">Cotizar por WhatsApp</button>
+                </article>
+
+                <article class="bg-slate-900 rounded-2xl border-2 border-violet-500/80 p-6 shadow-xl shadow-violet-950/20 flex flex-col">
+                    <div class="flex items-center gap-4">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 110'%3E%3Crect width='160' height='110' rx='14' fill='%230f172a'/%3E%3Crect x='17' y='22' width='57' height='70' rx='9' fill='%231e293b' stroke='%238b5cf6' stroke-width='3'/%3E%3Crect x='86' y='22' width='57' height='70' rx='9' fill='%231e293b' stroke='%23a78bfa' stroke-width='3'/%3E%3Cpath d='M29 40h12v12H29zm22 0h12v12H51zM29 62h12v12H29zm22 0h12v12H51zM98 40h12v12H98zm22 0h12v12h-12zM98 62h12v12H98zm22 0h12v12h-12z' fill='%23c4b5fd'/%3E%3C/svg%3E" alt="Ilustração provisória do combo de placas para redes sociais" data-i18n-alt="productImageAlt" class="h-16 w-20 shrink-0 rounded-xl object-cover">
+                        <h3 class="text-lg font-bold text-white" data-i18n="prodComboName">Combo redes sociales: 3 por el precio de 2</h3>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed mt-5 flex-1" data-i18n="prodComboDesc">Lleva tres placas para tus redes y paga solo dos.</p>
+                    <div class="price-display mt-5" data-price-key="combo3For2">
+                        <p class="text-xl font-black text-white">$<span data-clp-amount>37.800</span> CLP</p>
+                        <p class="text-xs text-slate-400 mt-1" data-fx-price></p>
+                    </div>
+                    <button type="button" onclick="orderProduct('prodComboName')" class="mt-5 w-full bg-gradient-to-r from-indigo-600 to-violet-500 hover:brightness-110 text-white font-bold py-3 rounded-xl text-sm transition" data-i18n="pricingOrder">Cotizar por WhatsApp</button>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         GALERIA DE MODELOS DAS PLACAS
+         Exibe modelos visuais em uma grade de uma coluna no celular e três no desktop.
+         Substitua o conteúdo SVG de cada src por um caminho de foto, por exemplo:
+         images/placa-google-reviews.jpg. Mantenha alt descritivo para acessibilidade.
+         Edite títulos/descrições nas chaves gallery* de TRANSLATIONS e o visual nas classes Tailwind.
+    =========================================== -->
+    <section id="gallery" class="py-20 bg-slate-950 border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-2">
+                <h2 class="text-3xl font-black text-white" data-i18n="galleryTitle">Placas en detalle</h2>
+                <p class="text-slate-400 text-sm" data-i18n="gallerySubtitle">Modelos visuales para cafeterías, hoteles y restaurantes de Puerto Varas y la Región de Los Lagos.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                <article class="overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-lg">
+                    <img
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23f1f5f9'/%3E%3Crect x='250' y='75' width='300' height='450' rx='28' fill='%23ffffff' stroke='%23cbd5e1' stroke-width='8'/%3E%3Ccircle cx='400' cy='200' r='52' fill='%23fef3c7'/%3E%3Cpath d='m400 165 11 23 25 4-18 17 4 25-22-12-22 12 4-25-18-17 25-4z' fill='%23f59e0b'/%3E%3Crect x='320' y='285' width='160' height='140' rx='8' fill='%230f172a'/%3E%3Cpath d='M340 305h32v32h-32zm48 0h32v32h-32zm48 0h24v24h-24zm-96 48h24v24h-24zm40 0h32v32h-32zm48 0h32v32h-32zm-48 48h24v24h-24zm48 0h24v24h-24z' fill='%23fff'/%3E%3Ctext x='400' y='475' text-anchor='middle' font-family='Arial' font-size='20' fill='%2364758b'%3EGoogle Reviews%3C/text%3E%3C/svg%3E"
+                        alt="Modelo de placa NGTouch para Google Reviews"
+                        data-i18n-alt="gallery1Alt"
+                        loading="lazy"
+                        class="block w-full aspect-[4/3] object-cover"
+                    >
+                    <div class="p-5">
+                        <h3 class="font-bold text-white" data-i18n="gallery1Title">Google Reviews</h3>
+                        <p class="mt-1 text-sm text-slate-400" data-i18n="gallery1Desc">Invita a tus clientes a dejar una reseña con un solo toque.</p>
+                    </div>
+                </article>
+
+                <article class="overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-lg">
+                    <img
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23f1f5f9'/%3E%3Crect x='250' y='75' width='300' height='450' rx='28' fill='%23ffffff' stroke='%23cbd5e1' stroke-width='8'/%3E%3Ccircle cx='400' cy='200' r='52' fill='%23fce7f3'/%3E%3Crect x='375' y='175' width='50' height='50' rx='14' fill='none' stroke='%23db2777' stroke-width='7'/%3E%3Ccircle cx='400' cy='200' r='12' fill='none' stroke='%23db2777' stroke-width='6'/%3E%3Ccircle cx='416' cy='184' r='4' fill='%23db2777'/%3E%3Crect x='320' y='285' width='160' height='140' rx='8' fill='%230f172a'/%3E%3Cpath d='M340 305h32v32h-32zm48 0h32v32h-32zm48 0h24v24h-24zm-96 48h24v24h-24zm40 0h32v32h-32zm48 0h32v32h-32zm-48 48h24v24h-24zm48 0h24v24h-24z' fill='%23fff'/%3E%3Ctext x='400' y='475' text-anchor='middle' font-family='Arial' font-size='20' fill='%2364758b'%3EInstagram + WiFi%3C/text%3E%3C/svg%3E"
+                        alt="Modelo de placa NGTouch para Instagram y WiFi"
+                        data-i18n-alt="gallery2Alt"
+                        loading="lazy"
+                        class="block w-full aspect-[4/3] object-cover"
+                    >
+                    <div class="p-5">
+                        <h3 class="font-bold text-white" data-i18n="gallery2Title">Instagram &amp; WiFi</h3>
+                        <p class="mt-1 text-sm text-slate-400" data-i18n="gallery2Desc">Comparte tu perfil y conecta a tus clientes al WiFi del local.</p>
+                    </div>
+                </article>
+
+                <article class="overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-lg sm:col-span-2 lg:col-span-1">
+                    <img
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23f1f5f9'/%3E%3Crect x='250' y='75' width='300' height='450' rx='28' fill='%23ffffff' stroke='%23cbd5e1' stroke-width='8'/%3E%3Ccircle cx='400' cy='200' r='52' fill='%23ccfbf1'/%3E%3Cpath d='M370 177h60v46h-60zm10-12h40v10h-40zm5 28h30m-30 12h30' fill='none' stroke='%230d9488' stroke-width='6' stroke-linecap='round'/%3E%3Crect x='320' y='285' width='160' height='140' rx='8' fill='%230f172a'/%3E%3Cpath d='M340 305h32v32h-32zm48 0h32v32h-32zm48 0h24v24h-24zm-96 48h24v24h-24zm40 0h32v32h-32zm48 0h32v32h-32zm-48 48h24v24h-24zm48 0h24v24h-24z' fill='%23fff'/%3E%3Ctext x='400' y='475' text-anchor='middle' font-family='Arial' font-size='20' fill='%2364758b'%3EDigital Menu%3C/text%3E%3C/svg%3E"
+                        alt="Modelo de placa NGTouch para menú digital"
+                        data-i18n-alt="gallery3Alt"
+                        loading="lazy"
+                        class="block w-full aspect-[4/3] object-cover"
+                    >
+                    <div class="p-5">
+                        <h3 class="font-bold text-white" data-i18n="gallery3Title">Menú Digital</h3>
+                        <p class="mt-1 text-sm text-slate-400" data-i18n="gallery3Desc">Facilita el acceso a tu menú desde cada mesa o mostrador.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         PLANOS E PREÇOS
+         Apresenta opções fixas em CLP, sem calculadora ou interação de quantidade.
+         Altere os valores em CONFIG.prices e os textos nas chaves pricing* de TRANSLATIONS.
+         Cada botão envia o plano escolhido pelo WhatsApp; o layout se adapta de uma a três colunas.
+    =========================================== -->
+    <section id="pricing" class="py-20 bg-slate-900/50 border-y border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+                <h2 class="text-3xl sm:text-4xl font-black text-white" data-i18n="pricingTitle">Planes y precios</h2>
+                <p class="text-slate-400 text-sm sm:text-base" data-i18n="pricingSubtitle">Elige la opción ideal para tu cafetería, hotel o restaurante en la Región de Los Lagos.</p>
+                <p class="text-xs text-slate-500" data-i18n="pricingFxNote">Los precios se cobran en CLP. La conversión a moneda extranjera es aproximada y usa el tipo de cambio actual.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8 items-stretch">
+                <article class="rounded-2xl border border-slate-700 bg-slate-950 p-7 sm:p-8 flex flex-col shadow-xl">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-400/20 text-indigo-300 flex items-center justify-center text-xl mb-6">
+                        <i class="fa-solid fa-tag" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white" data-i18n="pricingSingleTitle">Placa individual</h3>
+                    <p class="text-sm text-slate-400 mt-2 min-h-12" data-i18n="pricingSingleDesc">Ideal para probar la experiencia NFC + QR en tu negocio.</p>
+                    <div class="price-display mt-6" data-price-key="singleUnit">
+                        <p class="text-3xl sm:text-4xl font-black text-white">$<span data-clp-amount>18.900</span> <span class="text-sm font-bold text-slate-400">CLP</span></p>
+                        <p class="hidden text-sm font-semibold text-violet-300 mt-1" data-fx-price></p>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2" data-i18n="pricingIncludes">Diseño personalizado y configuración NFC + QR incluidos.</p>
+                    <button type="button" onclick="orderProduct('pricingSingleTitle')" class="mt-auto pt-8">
+                        <span class="block w-full rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 text-sm transition" data-i18n="pricingOrder">Cotizar por WhatsApp</span>
+                    </button>
+                </article>
+
+                <article class="rounded-2xl border border-indigo-500/70 bg-slate-950 p-7 sm:p-8 flex flex-col shadow-2xl shadow-indigo-950/30 relative md:-translate-y-2">
+                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-indigo-600 to-violet-500 px-4 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white" data-i18n="pricingPopular">Mejor precio</span>
+                    <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-400/20 text-violet-300 flex items-center justify-center text-xl mb-6">
+                        <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white" data-i18n="pricingPack5Title">Pack de 5 placas</h3>
+                    <p class="text-sm text-slate-400 mt-2 min-h-12" data-i18n="pricingPack5Desc">Una solución práctica para cafeterías y locales pequeños.</p>
+                    <div class="price-display mt-6" data-price-key="pack5">
+                        <p class="text-3xl sm:text-4xl font-black text-white">$<span data-clp-amount>84.900</span> <span class="text-sm font-bold text-slate-400">CLP</span></p>
+                        <p class="hidden text-sm font-semibold text-violet-300 mt-1" data-fx-price></p>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2" data-i18n="pricingIncludes">Diseño personalizado y configuración NFC + QR incluidos.</p>
+                    <button type="button" onclick="orderProduct('pricingPack5Title')" class="mt-auto pt-8">
+                        <span class="block w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-500 hover:brightness-110 text-white font-bold py-3.5 text-sm transition" data-i18n="pricingOrder">Cotizar por WhatsApp</span>
+                    </button>
+                </article>
+
+                <article class="rounded-2xl border border-slate-700 bg-slate-950 p-7 sm:p-8 flex flex-col shadow-xl">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-400/20 text-indigo-300 flex items-center justify-center text-xl mb-6">
+                        <i class="fa-solid fa-store" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white" data-i18n="pricingPack10Title">Pack de 10 placas</h3>
+                    <p class="text-sm text-slate-400 mt-2 min-h-12" data-i18n="pricingPack10Desc">Equipa las mesas de tu restaurante u hotel y ahorra por unidad.</p>
+                    <div class="price-display mt-6" data-price-key="pack10">
+                        <p class="text-3xl sm:text-4xl font-black text-white">$<span data-clp-amount>149.900</span> <span class="text-sm font-bold text-slate-400">CLP</span></p>
+                        <p class="hidden text-sm font-semibold text-violet-300 mt-1" data-fx-price></p>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2" data-i18n="pricingIncludes">Diseño personalizado y configuración NFC + QR incluidos.</p>
+                    <button type="button" onclick="orderProduct('pricingPack10Title')" class="mt-auto pt-8">
+                        <span class="block w-full rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 text-sm transition" data-i18n="pricingOrder">Cotizar por WhatsApp</span>
+                    </button>
+                </article>
+
+                <article class="rounded-2xl border border-violet-500/70 bg-slate-950 p-7 sm:p-8 flex flex-col shadow-xl shadow-violet-950/20 relative">
+                    <span class="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-indigo-600 to-violet-500 px-4 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white">3 × 2</span>
+                    <div class="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-400/20 text-violet-300 flex items-center justify-center text-xl mb-6">
+                        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white" data-i18n="pricingComboTitle">Combo redes sociales</h3>
+                    <p class="text-sm text-slate-400 mt-2 min-h-12" data-i18n="pricingComboDesc">Tres placas para tus redes sociales por el precio de dos.</p>
+                    <div class="price-display mt-6" data-price-key="combo3For2">
+                        <p class="text-3xl sm:text-4xl font-black text-white">$<span data-clp-amount>37.800</span> <span class="text-sm font-bold text-slate-400">CLP</span></p>
+                        <p class="hidden text-sm font-semibold text-violet-300 mt-1" data-fx-price></p>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2" data-i18n="pricingIncludes">Diseño personalizado y configuración NFC + QR incluidos.</p>
+                    <button type="button" onclick="orderProduct('pricingComboTitle')" class="mt-auto pt-8">
+                        <span class="block w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-500 hover:brightness-110 text-white font-bold py-3.5 text-sm transition" data-i18n="pricingOrder">Cotizar por WhatsApp</span>
+                    </button>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         COMO FUNCIONA, ENTREGA E PAGAMENTO
+         Explica os passos do pedido, o que está incluído e as opções a confirmar com o cliente.
+         Edite os textos info* em TRANSLATIONS; confirme cobertura, prazo e retirada por WhatsApp.
+    =========================================== -->
+    <section id="info" class="py-20 bg-slate-950 border-y border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+                <h2 class="text-3xl sm:text-4xl font-black text-white" data-i18n="infoTitle">Cómo funciona</h2>
+                <p class="text-slate-400 text-sm sm:text-base" data-i18n="infoSubtitle">Un pedido sencillo, coordinado contigo por WhatsApp.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+                <article class="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+                    <div class="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-400/20 text-indigo-300 flex items-center justify-center font-black mb-4">1</div>
+                    <h3 class="font-bold text-white" data-i18n="infoStep1Title">Elige tu placa o combo</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-400" data-i18n="infoStep1Desc">Selecciona el modelo o pack que mejor se adapte a tu negocio.</p>
+                </article>
+                <article class="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+                    <div class="w-11 h-11 rounded-xl bg-violet-500/10 border border-violet-400/20 text-violet-300 flex items-center justify-center font-black mb-4">2</div>
+                    <h3 class="font-bold text-white" data-i18n="infoStep2Title">Comparte tus enlaces</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-400" data-i18n="infoStep2Desc">Envíanos los links que quieres conectar y los datos necesarios para personalizar tu placa.</p>
+                </article>
+                <article class="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+                    <div class="w-11 h-11 rounded-xl bg-indigo-500/10 border border-indigo-400/20 text-indigo-300 flex items-center justify-center font-black mb-4">3</div>
+                    <h3 class="font-bold text-white" data-i18n="infoStep3Title">Confirma los detalles</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-400" data-i18n="infoStep3Desc">Coordinamos por WhatsApp tu pedido, forma de pago y disponibilidad de entrega o retiro.</p>
+                </article>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                <article class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+                    <i class="fa-solid fa-wand-magic-sparkles text-violet-300 text-xl mb-4" aria-hidden="true"></i>
+                    <h3 class="font-bold text-white" data-i18n="infoIncludedTitle">Qué incluye</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-400" data-i18n="infoIncludedDesc">Diseño personalizado y configuración NFC + QR para los enlaces acordados.</p>
+                </article>
+                <article class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+                    <i class="fa-solid fa-mobile-screen-button text-violet-300 text-xl mb-4" aria-hidden="true"></i>
+                    <h3 class="font-bold text-white" data-i18n="infoCompatibilityTitle">Compatibilidad</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-400" data-i18n="infoCompatibilityDesc">Usa NFC con un celular compatible o escanea el QR con la cámara. No necesitas instalar una app.</p>
+                </article>
+                <article class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+                    <i class="fa-solid fa-truck text-violet-300 text-xl mb-4" aria-hidden="true"></i>
+                    <h3 class="font-bold text-white" data-i18n="infoDeliveryTitle">Entrega y despacho</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-400" data-i18n="infoDeliveryDesc">Estamos en Puerto Varas y despachamos a Puerto Montt, Frutillar y la Región de Los Lagos. Consulta por WhatsApp cobertura, plazos y costos.</p>
+                </article>
+                <article class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+                    <i class="fa-solid fa-box-open text-violet-300 text-xl mb-4" aria-hidden="true"></i>
+                    <h3 class="font-bold text-white" data-i18n="infoPickupTitle">Retiro del pedido</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-400" data-i18n="infoPickupDesc">Consulta por WhatsApp si hay disponibilidad para retirar en Puerto Varas y coordina los detalles.</p>
+                </article>
+                <article class="rounded-2xl border border-slate-800 bg-slate-900/50 p-6">
+                    <i class="fa-solid fa-money-bill-transfer text-violet-300 text-xl mb-4" aria-hidden="true"></i>
+                    <h3 class="font-bold text-white" data-i18n="infoPaymentTitle">Medios de pago</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-400" data-i18n="infoPaymentDesc">Aceptamos efectivo o transferencia bancaria. Compartimos los datos al confirmar el pedido.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         CONTATO
+         Mostra os canais de atendimento do negócio na Região de Los Lagos.
+         Edite os textos de contato em TRANSLATIONS; os destinos vêm de CONFIG.
+    =========================================== -->
+    <section id="contact" class="py-20 bg-slate-950">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-10">
+            
+            <div class="space-y-3">
+                <h2 class="text-3xl font-black text-white" data-i18n="contactTitle">¿Listo para impulsar tu local comercial?</h2>
+                <p class="text-slate-400 text-sm max-w-xl mx-auto" data-i18n="contactDesc">Estamos ubicados en Puerto Varas y despachamos a Puerto Montt, Frutillar y toda la Región de Los Lagos.</p>
+            </div>
+
+            <!-- Atalhos diretos para os canais de atendimento. -->
+            <div class="flex flex-col sm:flex-row justify-center gap-6">
+                <a id="footer-wsp-btn" href="#" target="_blank" rel="noopener noreferrer" class="bg-gradient-to-r from-indigo-600 to-violet-500 hover:brightness-110 text-white font-bold px-8 py-4 rounded-xl shadow-md shadow-violet-950/30 transition flex items-center justify-center space-x-3">
+                    <i class="fa-brands fa-whatsapp text-2xl"></i>
+                    <span data-i18n="btnDirectWsp">Escribir al WhatsApp</span>
+                </a>
+                <a id="footer-insta-btn" href="#" target="_blank" rel="noopener noreferrer" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-8 py-4 rounded-xl shadow-md transition flex items-center justify-center space-x-3">
+                    <i class="fa-brands fa-instagram text-2xl text-violet-300"></i>
+                    <span data-i18n="btnDirectInsta">Ver nuestro Instagram</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- RODAPÉ: cidade, marca e ano; ajuste os textos aqui e o ano é preenchido pelo JavaScript. -->
+    <footer class="bg-black/40 text-slate-400 py-8 border-t border-slate-800 text-xs mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <span class="font-extrabold text-white text-sm">NG<span class="text-brand-500">Touch</span></span>
+                <p class="text-slate-500">Puerto Varas, Región de los Lagos, Chile.</p>
+            </div>
+            <div class="text-slate-500 text-[11px]">
+                © <span id="year-span"></span> NGTouch. Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==========================================
+         LÓGICA DINÂMICA DA PÁGINA
+         Inicializa ano, links e preços apresentados; também controla idiomas e menu móvel.
+         Edite mensagens e preços em CONFIG/TRANSLATIONS. Os preços são valores fixos, sem calculadora.
+    =========================================== -->
+    <script>
+        let currentLang = 'es';
+        let currentExchangeRates = null;
+        let exchangeRateStatus = 'loading';
+
+        // Inicializa ano, idioma padrão, links, preços e eventos do cabeçalho.
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('year-span').textContent = new Date().getFullYear();
+            updateContactLinks();
+            updatePricingPrices();
+            fetchExchangeRates();
+            setLanguage(currentLang);
+            setupMobileMenu();
+            updateHeaderOnScroll();
+            window.addEventListener('scroll', updateHeaderOnScroll, { passive: true });
+        });
+
+        // Atualiza textos e atributos alt e destaca o idioma selecionado em ambos os seletores.
+        function setLanguage(lang) {
+            if (!Object.prototype.hasOwnProperty.call(TRANSLATIONS, lang)) return;
+            currentLang = lang;
+
+            document.documentElement.lang = lang;
+            document.querySelectorAll('.language-button').forEach(button => {
+                const active = button.dataset.lang === lang;
+                button.classList.toggle('bg-white/15', active);
+                button.classList.toggle('text-white', active);
+                button.classList.toggle('text-slate-400', !active);
+                button.setAttribute('aria-pressed', String(active));
+            });
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (Object.prototype.hasOwnProperty.call(TRANSLATIONS[lang], key)) {
+                    el.innerHTML = TRANSLATIONS[lang][key];
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-alt]').forEach(el => {
+                const key = el.getAttribute('data-i18n-alt');
+                if (Object.prototype.hasOwnProperty.call(TRANSLATIONS[lang], key)) {
+                    el.alt = TRANSLATIONS[lang][key];
+                }
+            });
+            updateContactLinks();
+            updateForeignPrices();
+        }
+
+        // Exibe sempre CLP como preço oficial e calcula a apresentação de câmbio por idioma.
+        function updatePricingPrices() {
+            const formatter = new Intl.NumberFormat('es-CL');
+            document.querySelectorAll('.price-display').forEach(element => {
+                const priceKey = element.dataset.priceKey;
+                const price = CONFIG.prices[priceKey];
+                const clpAmount = element.querySelector('[data-clp-amount]');
+                if (typeof price === 'number' && clpAmount) {
+                    clpAmount.textContent = formatter.format(price);
+                }
+            });
+            updateForeignPrices();
+        }
+
+        // Busca as taxas CLP/USD/BRL atuais; em falha, conserva CLP e informa que a conversão não está disponível.
+        async function fetchExchangeRates() {
+            try {
+                const response = await fetch('https://open.er-api.com/v6/latest/CLP');
+                if (!response.ok) {
+                    throw new Error(`Exchange-rate service returned HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                const rates = data.rates;
+                if (data.result !== 'success' || !rates || !(rates.USD > 0) || !(rates.BRL > 0)) {
+                    throw new Error('Exchange-rate service returned invalid CLP, USD, or BRL rates');
+                }
+
+                currentExchangeRates = { USD: rates.USD, BRL: rates.BRL };
+                exchangeRateStatus = 'available';
+            } catch (error) {
+                exchangeRateStatus = 'unavailable';
+                console.warn('Current foreign-currency prices could not be loaded; CLP prices remain available.', error);
+            }
+
+            updateForeignPrices();
+        }
+
+        // Converte para USD na interface EN e BRL na interface PT, sempre arredondando a unidade final.
+        function updateForeignPrices() {
+            const currencyByLanguage = {
+                en: { code: 'USD', locale: 'en-US', label: 'USD' },
+                pt: { code: 'BRL', locale: 'pt-BR', label: 'BRL' },
+            };
+            const currency = currencyByLanguage[currentLang];
+
+            document.querySelectorAll('.price-display').forEach(element => {
+                const output = element.querySelector('[data-fx-price]');
+                if (!output) return;
+
+                output.classList.toggle('hidden', !currency);
+                if (!currency) return;
+
+                if (exchangeRateStatus === 'loading') {
+                    output.textContent = TRANSLATIONS[currentLang].fxLoading;
+                    return;
+                }
+                if (exchangeRateStatus !== 'available' || !currentExchangeRates) {
+                    output.textContent = TRANSLATIONS[currentLang].fxUnavailable;
+                    return;
+                }
+
+                const clpPrice = CONFIG.prices[element.dataset.priceKey];
+                const roundedPrice = Math.round(clpPrice * currentExchangeRates[currency.code]);
+                const formattedPrice = new Intl.NumberFormat(currency.locale, {
+                    style: 'currency',
+                    currency: currency.code,
+                    maximumFractionDigits: 0,
+                }).format(roundedPrice);
+                output.textContent = `≈ ${formattedPrice}`;
+            });
+        }
+
+        // Gera os links de contato usando as informações centralizadas em CONFIG.
+        function updateContactLinks() {
+            const message = TRANSLATIONS[currentLang].quoteGeneral;
+            const wspUrl = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
+            const instaUrl = `https://instagram.com/${CONFIG.instagramHandle}`;
+
+            document.getElementById('top-wsp-btn').href = wspUrl;
+            document.getElementById('hero-wsp-btn').href = wspUrl;
+            document.getElementById('footer-wsp-btn').href = wspUrl;
+            document.getElementById('footer-insta-btn').href = instaUrl;
+            document.getElementById('mobile-wsp-btn').href = wspUrl;
+        }
+
+        // Abre/fecha o painel lateral, escurece o restante da tela e bloqueia a rolagem ao fundo.
+        function setMobileMenuOpen(isOpen, restoreFocus = false) {
+            const menu = document.getElementById('mobile-menu');
+            const backdrop = document.getElementById('mobile-menu-backdrop');
+            const toggle = document.getElementById('mobile-menu-toggle');
+            const icon = document.getElementById('mobile-menu-icon');
+
+            menu.classList.toggle('is-open', isOpen);
+            backdrop.classList.toggle('is-open', isOpen);
+            toggle.setAttribute('aria-expanded', String(isOpen));
+            menu.setAttribute('aria-hidden', String(!isOpen));
+            document.body.classList.toggle('menu-open', isOpen);
+            icon.classList.toggle('fa-bars', !isOpen);
+            icon.classList.toggle('fa-xmark', isOpen);
+
+            if (isOpen) {
+                requestAnimationFrame(() => document.getElementById('mobile-menu-close').focus());
+            } else if (restoreFocus) {
+                document.getElementById('mobile-menu-toggle').focus();
+            }
+        }
+
+        // Configura fechamento ao navegar, clicar fora, selecionar idioma, pressionar Escape ou ampliar a tela.
+        function setupMobileMenu() {
+            document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
+                const isOpen = document.getElementById('mobile-menu-toggle').getAttribute('aria-expanded') === 'true';
+                setMobileMenuOpen(!isOpen, isOpen);
+            });
+            document.getElementById('mobile-menu-close').addEventListener('click', () => setMobileMenuOpen(false, true));
+            document.getElementById('mobile-menu-backdrop').addEventListener('click', () => setMobileMenuOpen(false, true));
+            document.querySelectorAll('#mobile-menu .mobile-menu-link, #mobile-wsp-btn').forEach(link => {
+                link.addEventListener('click', () => setMobileMenuOpen(false));
+            });
+            document.querySelectorAll('.language-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    setLanguage(button.dataset.lang);
+                    setMobileMenuOpen(false);
+                });
+            });
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') setMobileMenuOpen(false, true);
+            });
+            window.matchMedia('(min-width: 1024px)').addEventListener('change', event => {
+                if (event.matches) setMobileMenuOpen(false);
+            });
+        }
+
+        // Adiciona o vidro escuro ao cabeçalho depois do início da rolagem.
+        function updateHeaderOnScroll() {
+            document.getElementById('site-header').classList.toggle('is-scrolled', window.scrollY > 24);
+        }
+
+        // Abre uma conversa com saudação e nome do produto no idioma selecionado.
+        function orderProduct(productNameKey) {
+            const translations = TRANSLATIONS[currentLang];
+            const productName = translations[productNameKey];
+            if (!productName) {
+                console.error(`Missing WhatsApp product translation: ${productNameKey}`);
+                return;
+            }
+
+            const msg = `${translations.quoteGreeting} *${productName}* ${translations.quoteSuffix}`;
+            window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+        }
+    </script>
+</body>
+</html>
